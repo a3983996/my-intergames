@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>小遊戲</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <aside>
+      <ul>
+        <li class="menuGame1">貪吃蛇</li>
+        <li class="menuGame2">俄羅斯方塊</li>
+        <li class="menuGame3">炸彈超人</li>
+      </ul>
+    </aside>
+    <input type="text" onchange="abc()" />
+    <div class="game1" style="display: none">
+      <h1>貪吃蛇</h1>
+      <div class="scope"></div>
+      <div class="control">
+        <button class="start" onclick="start()">開始</button>
+        <button class="pause" onclick="pause()">暫停</button>
+        <button class="pause_cancel" onclick="pauseCancel()">繼續</button>
+        <button class="end" onclick="end()">結束</button>
+      </div>
+    </div>
+    <div class="game2">
+      <h1>俄羅斯方塊</h1>
+      <div class="scope"></div>
+      <div class="control">
+        <button class="start" onclick="start()">開始</button>
+        <button class="pause" onclick="pause()">暫停</button>
+        <button class="pause_cancel" onclick="pauseCancel()">繼續</button>
+        <button class="end" onclick="end()">結束</button>
+      </div>
+    </div>
+    <div class="game3" style="display: none">
+      <h1>炸彈超人</h1>
+      <div class="scope"></div>
+      <div class="control">
+        <button class="start" onclick="start()">開始</button>
+        <button class="pause" onclick="pause()">暫停</button>
+        <button class="pause_cancel" onclick="pauseCancel()">繼續</button>
+        <button class="end" onclick="end()">結束</button>
+      </div>
+    </div>
+    <script src="/js/index.js"></script>
+    <script src="/js/game2.js"></script>
+  </body>
+</html>

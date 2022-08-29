@@ -1,0 +1,50 @@
+
+.game2{
+    width: 20%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    flex-direction: column;
+    h1{
+        font-size: 2rem;
+        margin-bottom: 3%;
+    }
+    .scope{
+        width: 100%;
+        padding-top: 200%;
+        background-color: wheat;
+        position: relative;
+        border: 0.5rem solid gray;
+        // overflow: hidden;
+        .square{
+            position: absolute;
+            width: 10%;
+            height: 5%;
+            box-shadow: inset -1px -1px ;
+            border-radius: 10%;
+        }
+        .towards{
+            
+        }
+    }
+    .control{
+        margin-top: 3%;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        
+        button{
+            width: 40%;
+            padding: 0.5rem 0;
+            border-radius: 5px;
+        }
+        .pause{
+            display: none;
+        }
+        .pause_cancel{
+            display: none;
+        }
+    }
+}

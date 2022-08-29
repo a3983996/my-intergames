@@ -1,0 +1,608 @@
+let scope = document.querySelector(".scope"); //地圖
+let fractionDiv = document.querySelector(".fraction"); //分數
+let fraction;
+let towardsDown;
+let towardDown;
+let towardLeft;
+let towardRight;
+let speed;
+let moveEnd;
+let newBodys;
+let canMove;
+let squares;
+let random;
+let shape = [
+  [0, 1],
+  [1, 2],
+  [2, 2],
+  [3, 4],
+  [4, 4],
+  [5, 2],
+  [6, 4],
+];
+let points = [];
+let x, y, w, h;
+let bottonPoints = [
+  [0, 100],
+  [10, 100],
+  [20, 100],
+  [30, 100],
+  [40, 100],
+  [50, 100],
+  [60, 100],
+  [70, 100],
+  [80, 100],
+  [90, 100],
+];
+let init = () => {
+  speed = 500;
+  x = 30;
+  y = 0;
+  w = 10;
+  h = 5;
+  fraction = 0;
+  canMove = true;
+  moveEnd = true;
+  points = [];
+  squares = document.querySelectorAll(".square");
+  squares.forEach((square) => {
+    square.remove();
+  });
+
+  towardsDown = setInterval(() => move("down"), speed);
+
+  newBodys = setInterval(() => newBody(), speed);
+};
+let isOverlapping = () => {
+  canMove = true;
+  squares = document.querySelectorAll(".towards");
+  for (let square of squares) {
+    let topP = square.style.top;
+    let leftP = square.style.left;
+    let top = Number(topP.slice(0, topP.length - 1));
+    let left = Number(leftP.slice(0, leftP.length - 1));
+    for (let i = 0; i < bottonPoints.length; i++) {
+      if (top + h == bottonPoints[i][1] && left == bottonPoints[i][0]) {
+        canMove = false;
+        break;
+      }
+    }
+    //下降時碰到其他方塊
+    for (let i = 0; i < points.length; i++) {
+      if (top + h == points[i][1] && left == points[i][0]) {
+        canMove = false;
+        break;
+      }
+    }
+  }
+};
+let addPointsAndOffset = () => {
+  if (moveEnd) {
+    let jj = [];
+    for (let square of squares) {
+      square.classList.remove("towards");
+      let topP = square.style.top;
+      let leftP = square.style.left;
+      let top = Number(topP.slice(0, topP.length - 1));
+      let left = Number(leftP.slice(0, leftP.length - 1));
+      points.push([left, top]);
+    }
+    // console.log(points);
+
+    for (let j = 0; j < 100; j += 5) {
+      let num = 0;
+      for (let i = 0; i < points.length; i++) {
+        if (points[i][1] == j) {
+          num++;
+        }
+      }
+      if (num == 10) {
+        jj.push(j);
+      }
+    }
+    let cancels = document.querySelectorAll(".square");
+
+    for (let j = 0; j < jj.length; j++) {
+      //消除座標
+      // console.log("削掉");
+      fraction++;
+      for (let i = points.length - 1; i >= 0; i--) {
+        if (points[i][1] == jj[j]) {
+          points.splice(i, 1);
+        }
+      }
+    }
+    for (let j = 0; j < jj.length; j++) {
+      //座標下降
+      points.forEach((point) => {
+        if (point[1] <= jj[j]) {
+          point[1] += h;
+        }
+      });
+    }
+    for (let j = 0; j < jj.length; j++) {
+      //消除div;
+      cancels.forEach((cancel) => {
+        let topP = cancel.style.top;
+        let top = Number(topP.slice(0, topP.length - 1));
+        if (top == jj[j]) {
+          cancel.remove();
+        }
+      });
+    }
+
+    cancels = document.querySelectorAll(".square");
+    for (let j = 0; j < jj.length; j++) {
+      //div下降
+      // console.log("下降");
+
+      cancels.forEach((cancel) => {
+        let topP = cancel.style.top;
+        let top = Number(topP.slice(0, topP.length - 1));
+        if (top <= jj[j]) {
+          cancel.style.top = `${top + h}%`;
+        }
+      });
+    }
+  }
+  fractionDiv.textContent = fraction;
+};
+let move = (dir) => {
+  isOverlapping();
+  if (canMove) {
+    for (let square of squares) {
+      let topP = square.style.top;
+      let leftP = square.style.left;
+      let top = Number(topP.slice(0, topP.length - 1));
+      let left = Number(leftP.slice(0, leftP.length - 1));
+      switch (dir) {
+        case "down":
+          square.style.top = `${top + h}%`;
+          break;
+        case "left":
+          square.style.left = `${left - w}%`;
+          break;
+        case "right":
+          square.style.left = `${left + w}%`;
+          break;
+        default:
+          break;
+      }
+    }
+  } else {
+    for (let square of squares) {
+      let topP = square.style.top;
+      let leftP = square.style.left;
+      let top = Number(topP.slice(0, topP.length - 1));
+      let left = Number(leftP.slice(0, leftP.length - 1));
+      switch (dir) {
+        case "left":
+          square.style.left = `${left - w}%`;
+
+          break;
+        case "right":
+          square.style.left = `${left + w}%`;
+          break;
+        default:
+          break;
+      }
+      isOverlapping();
+      if (canMove) {
+        moveEnd = false;
+      } else {
+        moveEnd = true;
+      }
+    }
+    for (let square of squares) {
+      let topP = square.style.top;
+      let top = Number(topP.slice(0, topP.length - 1));
+      if (top < 0) {
+        clearInterval(towardsDown);
+      }
+    }
+  }
+  addPointsAndOffset();
+};
+let newBody = () => {
+  if (!moveEnd) {
+    return;
+  }
+  let color1 = "orange";
+  let color2 = "blue";
+  let color3 = "green";
+  let color4 = "red";
+  let color5 = "yellow";
+  let color6 = "cornflowerblue";
+  let color7 = "aqua";
+  shape.forEach((s) => {
+    s[1] = 0;
+  });
+  random = Math.floor(Math.random() * 7);
+  // random = 1;
+  // let randomS = Math.floor(Math.random() * shape[random][1]);
+  // shape[random][1] = randomS;
+  moveEnd = false;
+  let div1 = document.createElement("div");
+  let div2 = document.createElement("div");
+  let div3 = document.createElement("div");
+  let div4 = document.createElement("div");
+
+  div1.classList.add("square", "towards");
+  div2.classList.add("square", "towards");
+  div3.classList.add("square", "towards");
+  div4.classList.add("square", "towards");
+
+  shape.forEach((e) => {
+    e[1] = 0;
+  });
+  switch (shape[random][0]) {
+    case 0:
+      div1.style.backgroundColor = color1;
+      div2.style.backgroundColor = color1;
+      div3.style.backgroundColor = color1;
+      div4.style.backgroundColor = color1;
+      div1.style.left = `${x}%`;
+      div1.style.top = `${y}%`;
+      div2.style.left = `${x + w}%`;
+      div2.style.top = `${y}%`;
+      div3.style.left = `${x + w}%`;
+      div3.style.top = `${y - h}%`;
+      div4.style.left = `${x}%`;
+      div4.style.top = `${y - h}%`;
+      break;
+    case 1:
+      div1.style.backgroundColor = color2;
+      div2.style.backgroundColor = color2;
+      div3.style.backgroundColor = color2;
+      div4.style.backgroundColor = color2;
+      div1.style.left = `${x}%`;
+      div1.style.top = `${y}%`;
+      div2.style.left = `${x + w}%`;
+      div2.style.top = `${y}%`;
+      div3.style.left = `${x + w * 2}%`;
+      div3.style.top = `${y}%`;
+      div4.style.left = `${x + w * 3}%`;
+      div4.style.top = `${y}%`;
+      break;
+    case 2:
+      div1.style.backgroundColor = color3;
+      div2.style.backgroundColor = color3;
+      div3.style.backgroundColor = color3;
+      div4.style.backgroundColor = color3;
+      div1.style.left = `${x + w}%`;
+      div1.style.top = `${y}%`;
+      div2.style.left = `${x}%`;
+      div2.style.top = `${y}%`;
+      div3.style.left = `${x}%`;
+      div3.style.top = `${y - h}%`;
+      div4.style.left = `${x - w}%`;
+      div4.style.top = `${y - h}%`;
+      break;
+    case 3:
+      div1.style.backgroundColor = color4;
+      div2.style.backgroundColor = color4;
+      div3.style.backgroundColor = color4;
+      div4.style.backgroundColor = color4;
+      div1.style.left = `${x + w * 2}%`;
+      div1.style.top = `${y}%`;
+      div2.style.left = `${x + w}%`;
+      div2.style.top = `${y}%`;
+      div3.style.left = `${x}%`;
+      div3.style.top = `${y}%`;
+      div4.style.left = `${x + w}%`;
+      div4.style.top = `${y - h}%`;
+      break;
+    case 4:
+      div1.style.backgroundColor = color5;
+      div2.style.backgroundColor = color5;
+      div3.style.backgroundColor = color5;
+      div4.style.backgroundColor = color5;
+      div1.style.left = `${x + w * 2}%`;
+      div1.style.top = `${y}%`;
+      div2.style.left = `${x + w}%`;
+      div2.style.top = `${y}%`;
+      div3.style.left = `${x}%`;
+      div3.style.top = `${y}%`;
+      div4.style.left = `${x + w * 2}%`;
+      div4.style.top = `${y - h}%`;
+      break;
+    case 5:
+      div1.style.backgroundColor = color6;
+      div2.style.backgroundColor = color6;
+      div3.style.backgroundColor = color6;
+      div4.style.backgroundColor = color6;
+      div1.style.left = `${x + w}%`;
+      div1.style.top = `${y}%`;
+      div2.style.left = `${x}%`;
+      div2.style.top = `${y}%`;
+      div3.style.left = `${x + w * 2}%`;
+      div3.style.top = `${y - h}%`;
+      div4.style.left = `${x + w}%`;
+      div4.style.top = `${y - h}%`;
+      break;
+    case 6:
+      div1.style.backgroundColor = color7;
+      div2.style.backgroundColor = color7;
+      div3.style.backgroundColor = color7;
+      div4.style.backgroundColor = color7;
+      div1.style.left = `${x + w * 2}%`;
+      div1.style.top = `${y}%`;
+      div2.style.left = `${x + w}%`;
+      div2.style.top = `${y}%`;
+      div3.style.left = `${x}%`;
+      div3.style.top = `${y}%`;
+      div4.style.left = `${x}%`;
+      div4.style.top = `${y - h}%`;
+      break;
+    default:
+      break;
+  }
+  scope.appendChild(div1);
+  scope.appendChild(div2);
+  scope.appendChild(div3);
+  scope.appendChild(div4);
+};
+let shapeChange = ([x1, y1], [x2, y2], [x3, y3], [x4, y4]) => {
+  squares = document.querySelectorAll(".towards");
+  if (!document.querySelector(".towards")) {
+    return;
+  }
+  let addP = [
+    [(x1 *= w), (y1 *= h)],
+    [(x2 *= w), (y2 *= h)],
+    [(x3 *= w), (y3 *= h)],
+    [(x4 *= w), (y4 *= h)],
+  ];
+
+  let canChange = true,
+    leftP,
+    topP,
+    left,
+    top,
+    //超出的x
+    exceedX = 0,
+    //超出的y
+    exceedY = 0;
+  //設定超出範圍的x,y
+  squares.forEach((square, i) => {
+    leftP = square.style.left;
+    topP = square.style.top;
+    left = Number(leftP.slice(0, leftP.length - 1));
+    top = Number(topP.slice(0, topP.length - 1));
+    if (left + addP[i][0] > 90 && 90 - left - addP[i][0] < exceedX) {
+      exceedX = 90 - left - addP[i][0];
+    } else if (left + addP[i][0] < 0 && 0 - left - addP[i][0] > exceedX) {
+      exceedX = 0 - left - addP[i][0];
+    }
+    if (top + addP[i][1] > 95 && 95 - top - addP[i][1] < exceedY) {
+      exceedY = 95 - top - addP[i][1];
+    } else if (top + addP[i][1] < 0 && 0 - top - addP[i][1] > exceedY) {
+      exceedY = 0 - top - addP[i][1];
+    }
+  });
+  //檢查變形後會不會座標重疊
+  squares.forEach((square, i) => {
+    leftP = square.style.left;
+    topP = square.style.top;
+    left = Number(leftP.slice(0, leftP.length - 1));
+    top = Number(topP.slice(0, topP.length - 1));
+    points.forEach((point) => {
+      if (point[0] == left + addP[i][0] && point[1] == top + addP[i][1]) {
+        console.log("重疊");
+        canChange = false;
+      }
+    });
+  });
+  if (!canChange) {
+    return;
+  }
+  //墜落的四個方塊變形
+  squares.forEach((square, i) => {
+    leftP = square.style.left;
+    topP = square.style.top;
+    left = Number(leftP.slice(0, leftP.length - 1));
+    top = Number(topP.slice(0, topP.length - 1));
+    square.style.left = `${left + addP[i][0] + exceedX}%`;
+    square.style.top = `${top + addP[i][1] + exceedY}%`;
+  });
+};
+let keyupL = (e) => {
+  switch (e.key) {
+    case "ArrowRight":
+      clearInterval(towardRight);
+      break;
+    case "ArrowLeft":
+      clearInterval(towardLeft);
+      break;
+    case "ArrowDown":
+      clearInterval(towardDown);
+      break;
+    default:
+      break;
+  }
+};
+let keydownL = (e) => {
+  if (e.keyCode == 32) {
+    while (!moveEnd) {
+      move("down");
+    }
+  }
+  switch (e.key) {
+    case "ArrowRight":
+      clearInterval(towardRight);
+      clearInterval(towardLeft);
+      towardRight = setInterval(() => {
+        squares = document.querySelectorAll(".towards");
+        for (let square of squares) {
+          let topP = square.style.top;
+          let leftP = square.style.left;
+          let top = Number(topP.slice(0, topP.length - 1));
+          let left = Number(leftP.slice(0, leftP.length - 1));
+          if (left + w > 95) {
+            return;
+          }
+          for (let i = 0; i < points.length; i++) {
+            if (top == points[i][1] && left + w == points[i][0]) {
+              return;
+            }
+          }
+        }
+        move("right");
+      }, 50);
+      break;
+    case "ArrowLeft":
+      clearInterval(towardRight);
+      clearInterval(towardLeft);
+      towardLeft = setInterval(() => {
+        squares = document.querySelectorAll(".towards");
+        for (let square of squares) {
+          let topP = square.style.top;
+          let leftP = square.style.left;
+          let top = Number(topP.slice(0, topP.length - 1));
+          let left = Number(leftP.slice(0, leftP.length - 1));
+          if (left - w < 0) {
+            return;
+          }
+          for (let i = 0; i < points.length; i++) {
+            if (top == points[i][1] && left - w == points[i][0]) {
+              return;
+            }
+          }
+        }
+        move("left");
+      }, 50);
+      break;
+    case "ArrowDown":
+      clearInterval(towardDown);
+      towardDown = setInterval(() => {
+        squares = document.querySelectorAll(".towards");
+        for (let square of squares) {
+          let topP = square.style.top;
+          let leftP = square.style.left;
+          let top = Number(topP.slice(0, topP.length - 1));
+          let left = Number(leftP.slice(0, leftP.length - 1));
+
+          for (let i = 0; i < points.length; i++) {
+            if (top + h == points[i][1] && left == points[i][0]) {
+              return;
+            }
+          }
+        }
+        move("down");
+      }, 50);
+      break;
+    case "ArrowUp":
+      switch (shape[random][0]) {
+        case 1:
+          if (shape[random][1] == 0) {
+            shape[random][1] = 1;
+            shapeChange([1, -2], [0, -1], [-1, 0], [-2, 1]);
+          } else {
+            shape[random][1] = 0;
+            shapeChange([-1, 2], [0, 1], [1, 0], [2, -1]);
+          }
+          break;
+        case 2:
+          if (shape[random][1] == 0) {
+            shape[random][1] = 1;
+            shapeChange([-2, 1], [-1, 0], [0, 1], [1, 0]);
+          } else {
+            shape[random][1] = 0;
+            shapeChange([2, -1], [1, 0], [0, -1], [-1, 0]);
+          }
+          break;
+        case 3:
+          if (shape[random][1] == 0) {
+            shape[random][1] = 1;
+            shapeChange([-1, 1], [0, 0], [1, -1], [1, 1]);
+          } else if (shape[random][1] == 1) {
+            shape[random][1] = 2;
+            shapeChange([-1, -1], [0, 0], [1, 1], [-1, 1]);
+          } else if (shape[random][1] == 2) {
+            shape[random][1] = 3;
+            shapeChange([1, -1], [0, 0], [-1, 1], [-1, -1]);
+          } else {
+            shape[random][1] = 0;
+            shapeChange([1, 1], [0, 0], [-1, -1], [1, -1]);
+          }
+          break;
+        case 4:
+          if (shape[random][1] == 0) {
+            shape[random][1] = 1;
+            shapeChange([-1, -1], [0, 0], [1, 1], [-2, 0]);
+          } else if (shape[random][1] == 1) {
+            shape[random][1] = 2;
+            shapeChange([-1, 0], [0, -1], [1, -2], [0, 1]);
+          } else if (shape[random][1] == 2) {
+            shape[random][1] = 3;
+            shapeChange([0, 2], [-1, 1], [-2, 0], [1, 1]);
+          } else {
+            shape[random][1] = 0;
+            shapeChange([2, -1], [1, 0], [0, 1], [1, -2]);
+          }
+          break;
+        case 5:
+          if (shape[random][1] == 0) {
+            shape[random][1] = 1;
+            shapeChange([0, 0], [1, 1], [-2, 0], [-1, 1]);
+          } else {
+            shape[random][1] = 0;
+            shapeChange([0, 0], [-1, -1], [2, 0], [1, -1]);
+          }
+          break;
+        case 6:
+          if (shape[random][1] == 0) {
+            shape[random][1] = 1;
+            shapeChange([-1, -2], [0, -1], [1, 0], [0, 1]);
+          } else if (shape[random][1] == 1) {
+            shape[random][1] = 2;
+            shapeChange([-1, 1], [0, 0], [1, -1], [2, 0]);
+          } else if (shape[random][1] == 2) {
+            shape[random][1] = 3;
+            shapeChange([0, 2], [-1, 1], [-2, 0], [-1, -1]);
+          } else {
+            shape[random][1] = 0;
+            shapeChange([2, -1], [1, 0], [0, 1], [-1, 0]);
+          }
+          break;
+        default:
+          break;
+      }
+
+      break;
+
+    default:
+      break;
+  }
+};
+
+let start = () => {
+  init();
+  document.addEventListener("keydown", keydownL);
+  document.addEventListener("keyup", keyupL);
+  document.querySelector(".game2 .start").style.display = "none";
+  document.querySelector(".game2 .pause").style.display = "block";
+};
+let pause = () => {
+  clearInterval(towardsDown);
+  document.removeEventListener("keydown", keydownL);
+  document.removeEventListener("keyup", keyupL);
+  document.querySelector(".game2 .pause").style.display = "none";
+  document.querySelector(".game2 .pause_cancel").style.display = "block";
+};
+let pauseCancel = () => {
+  towardsDown = setInterval(() => move("down"), speed);
+  document.addEventListener("keydown", keydownL);
+  document.addEventListener("keyup", keyupL);
+  document.querySelector(".game2 .pause_cancel").style.display = "none";
+  document.querySelector(".game2 .pause").style.display = "block";
+};
+let end = () => {
+  clearInterval(towardsDown);
+  clearInterval(newBodys);
+  document.removeEventListener("keydown", keydownL);
+  document.removeEventListener("keyup", keyupL);
+  document.querySelector(".game2 .pause_cancel").style.display = "none";
+  document.querySelector(".game2 .pause").style.display = "none";
+  document.querySelector(".game2 .start").style.display = "block";
+};

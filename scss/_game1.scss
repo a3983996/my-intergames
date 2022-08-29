@@ -1,0 +1,64 @@
+.game1{
+    width: 40%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    flex-direction: column;
+    h1{
+        font-size: 2rem;
+        margin-bottom: 3%;
+    }
+    .scope{
+        width: 100%;
+        padding-top: 100%;
+        background-color: gray;
+        position: relative;
+        border: 0.5rem solid gray;
+        
+        .worm{
+            position: absolute;
+            width: 3%;
+            height: 3%;
+            margin: 0.5%;
+            background-color: green;
+
+        }
+        .snake{
+            position: absolute;
+            width: 3%;
+            height: 3%;
+            margin: 0.5%;
+            background-color: yellow;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        .snakeBody{
+            position: absolute;
+            width: 3%;
+            height: 3%;
+            margin: 0.5%;
+            background-color: white;
+        }
+    }
+    .control{
+        margin-top: 3%;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        
+        button{
+            width: 40%;
+            padding: 0.5rem 0;
+            border-radius: 5px;
+        }
+        .pause{
+            display: none;
+        }
+        .pause_cancel{
+            display: none;
+        }
+    }
+}
